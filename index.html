@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="initial-scale=1, minimum-scale=1, minimal-ui, maximum-scale=1" user-scalable="no">
+
+  <style>
+  banner {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      width: 100%;
+      
+  }
+  banner-indicator {
+      width: 100%;
+      justify-content: center;
+      align-items: center
+  }
+  banner>div{
+      margin-left: 10px;
+      display: flex;
+      flex: 1;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      overflow-x: scroll;
+      scroll-behavior: smooth;
+  }
+  banner-indicator>* {
+      margin-left: 10px;
+  }
+  banner-indicator>:first-child,banner>div>:first-child {
+      margin-left: 0
+  }
+  </style>
+
+</head>
+
+  <body>
+<banner>
+    <div>
+      <div id="banner-1">
+        <img src=""/>
+      </div>
+      <div id="banner-2">
+        <img src=""/>
+      </div>
+    <banner-indicator></banner-indicator>
+</banner>
+  </body>
+<script>
+(function banner() {
+  let bannerArray = document.querySelectorAll('banner');
+  let carouselArray = document.querySelectorAll('banner>div');
+  let indicatorArray = document.querySelectorAll('banner-indicator');
+
+  bannerArray.forEach(item => {
+
+    let carousel = item.querySelector(':scope > div');
+    let indicator = item.querySelector(':scope > banner-indicator');
+    let elements = item.querySelectorAll(':scope > div > *');
+    let currentIndex = 0;
+
+    function renderIndicator() {
+      indicator.innerHTML = '';
+      for (let i = 0; i < elements.length; i++) {
+        let button = document.createElement('icon');
+        button.className = (i === currentIndex ? 'icon-dots-2' : 'icon-dots');
+
+        (function(i) {
+          button.onclick = function() {
+            elements[i].scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+              inline: "center"
+            });
+          }
+        })(i);
+        indicator.appendChild(button);
+      }
+    }
+
+    let observer = new IntersectionObserver(function(entries, observer) {
+      let activated = entries.reduce(function(max, entry) {
+        return (entry.intersectionRatio > max.intersectionRatio) ? entry : max;
+      });
+      if (activated.intersectionRatio > 0) {
+        currentIndex = elementIndices[activated.target.getAttribute("id")];
+        renderIndicator();
+      }
+    }, {
+      root: carousel,
+      threshold: 0.7
+    });
+    let elementIndices = {};
+    for (let i = 0; i < elements.length; i++) {
+      elementIndices[elements[i].getAttribute("id")] = i;
+      observer.observe(elements[i]);
+    }
+
+  });
+
+})();
+</script>
+</html>
